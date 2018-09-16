@@ -1,8 +1,36 @@
 $(document).ready(function(event) {
 
-  	var app = firebase.app();
+  	// var app = firebase.app();
   	// Проверяем, работает ли firebase
   	// console.log(app);
+
+	// Initialize Firebase
+	var config = {
+		apiKey: "AIzaSyC9QE6B0zwaVN28YRZBypNrAsJ77M2yY-w",
+		authDomain: "kuznetsovandrey76-testproject.firebaseapp.com",
+		databaseURL: "https://kuznetsovandrey76-testproject.firebaseio.com",
+		projectId: "kuznetsovandrey76-testproject",
+		storageBucket: "kuznetsovandrey76-testproject.appspot.com",
+		messagingSenderId: "196100242422"
+	};
+	firebase.initializeApp(config);
+
+	// Создаем БД
+	var database = firebase.database();
+	// Аналог таблицы в БД
+	var ref = database.ref('user');
+
+	// Запрашиваем данные из таблицы на сервере
+	ref.on('value', gotData, errData);
+
+	// Если все ок 
+	function gotData(data) {
+		console.log('ok', data.val());
+	}
+
+	function errData(err) {
+		console.log('err', err);
+	}
 
 
   	$("#login").click(function() {
@@ -19,16 +47,22 @@ $(document).ready(function(event) {
 		  // The access token allows you to make requests to the API on a behalf of a user.
 		  var connect = "https://api.github.com/user?access_token=" + token;
 
+		  // Подключаемся к GitHub 
 		  $.ajax({
 			type: "GET",
 			url: connect,
 			// dataType: "json",
 			success: function (data, textStatus, jqXHR) {
 
-				// Ник 
-				var login = data.login;
-				var email = data.email;
-				var name = data.name;
+				// Берем только часть информации предоставляемой API GitHub
+				var toDB = {
+					login: data.login,
+					email: data.email,
+					name: data.name
+				}
+
+				// Отправляем данные в таблицу на сервер
+				ref.push(toDB); 
 			}
 		});
 
